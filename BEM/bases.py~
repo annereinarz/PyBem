@@ -1,0 +1,40 @@
+from numpy import floor, select, array
+from functools import partial
+from projection import interval
+
+
+def constant(nx, nt):
+   """
+   Constant base functions on the interval [0,1]^2 divided into nx * nt equal rectangles.
+   """
+   return ConstantBase(nx, nt)
+
+
+class ConstantBase:
+
+   def __init__(self, nx, nt):
+      self.nx = nx
+      self.nt = nt
+
+   def element_indices(self, x,t):
+      assert x.shape[1] == 1
+      assert t.shape[1] == 1
+      ix = select([x<1.0], [floor(x*self.nx)], self.nx-1)
+      it = select([t<1.0], [floor(t*self.nt)], self.nt-1)
+      i = ix + self.nx*it
+      return array(i, dtype=int)
+
+   def element_length(self, i):
+      return 1./(self.nx*self.nt)
+
+   def __getitem__(self, i):
+      ix = array(i %  self.nx, dtype=float)
+      it = array(i // self.nx, dtype=float)
+
+      bi = partial(lambda i,x,t: i == self.element_indices(x,t), i)
+      bi.support = (interval(ix/self.nx, (ix+1.)/self.nx),
+                    interval(it/self.nt, (it+1.)/self.nt))
+      return bi
+
+   def indices(self):
+      return range(self.nx*self.nt)

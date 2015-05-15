@@ -1,0 +1,17 @@
+from numpy import sqrt, sum, fromiter, pi, exp
+
+def norm_(z):
+   #assert z.shape[1] == d
+   return sqrt(sum(z**2, axis=1)).reshape(z.shape[0], 1)
+
+def dot_prod(x,y):
+   assert x.shape == y.shape
+   return fromiter(map(dot,x,y), dtype=x.dtype).reshape(x.shape[0], 1)
+
+def fundamentalSol(x,t, d):
+   #f =  select([t>0], [(4*pi*t)**(-d/2.)*exp(-norm_(x)**2/(4.*t))])
+   f =  (t>0)*(4*pi*t)**(-d/2.)*exp(-norm_(x)**2/(4.*t))
+   return f
+
+def nfundamentalSol(n,x,t, d):
+   return (t>0)*fundamentalSol(x,t,d)/(2*t)*dot_prod(n,x)

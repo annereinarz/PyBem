@@ -1,0 +1,20 @@
+In [1]: from numpy import *
+
+In [2]: from plotHeatMap import plotConv
+
+In [3]: ndof = array([8,64,512,4096,32768])
+
+In [4]: norm = array([1664.43944253,  1723.90883483,  1727.68161109,  1727.91832421,  1727.93314532])
+
+In [5]: norm2 = array([1844.35648755,  1909.24646922,  1913.35908324,  1913.61697672,  1913.63311924])
+
+In [6]: legs = ['a=0.7','a = 0.9']
+
+In [7]: plotConv([norm,norm2],ndof, legs)
+
+In [8]: norm2 = array([1844.35648755,  1909.24646922,  1913.35908324,  1913.61697672,  913.63311924])
+
+In [9]: plotConv([norm,norm2],ndof, legs)
+
+In [10]: 
+

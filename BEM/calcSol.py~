@@ -1,0 +1,96 @@
+from numpy import isnan, exp, pi, array, dot, sqrt, sum, fromiter, tile, select
+from scipy.special import jn_zeros
+from integrate import integrate
+from util import norm_
+import projection
+
+numQuadPoints = 55
+d = 2
+        
+               
+def fundamentalSol(x,t):
+        #f =  select([t>0], [(4*pi*t)**(-d/2.)*exp(-norm_(x)**2/(4.*t))])
+        #print "0?=",(t>0), t
+        #print "0?=",(4*pi*t)**(-d/2.)
+        #print "0?=",exp(-norm_(x)**2/(4.*t))
+        #print
+        f =  (t>0)*(4*pi*t)**(-d/2.)*exp(-norm_(x)**2/(4.*t))
+        return f
+
+def nfundamentalSol(n,x,t):
+        #print "f", n.shape, x.shape, t.shape
+        #print "g", (fundamentalSol(x,t)/(2*t)*dot_prod(n,x)).shape
+        return fundamentalSol(x,t)/(2*t)*dot_prod(n,x)
+
+def dot_prod(x,y):
+    assert x.shape == y.shape
+    return fromiter(map(dot,x,y), dtype=x.dtype).reshape(x.shape[0], 1)
+     
+def calcSolIndirect(space_proj, time_proj, boundaryFlux):
+    def u(x,t):
+        def K0(f):
+            def fh(y,s):  #debugging
+                return f(y,s)*fundamentalSol(x-y,t-s)
+            return integrate(fh, space_proj, time_proj, n = numQuadPoints, t=time_proj.inverse(t))
+        #print x.shape
+        if space_proj.contains(x):
+            return K0(boundaryFlux)
+    return u
+
+def calcSolDirect(space_proj, time_proj, g, boundaryFlux):
+    def u(x,t):
+        def K0(f):
+            def help(y,s):
+                 return f(y,s)*fundamentalSol(x-y,t-s)
+            r = integrate(help, space_proj, time_proj, n = numQuadPoints, t=time_proj.inverse(t), nsing = min(numQuadPoints,13))
+            print help(space_proj(array([[0.02]])),array([0.5])), r
+            return r
+
+        def K1(f):
+            return integrate(lambda y,s: f(y,s)*nfundamentalSol(space_proj.normal(y),x-y,t-s), space_proj, time_proj, n = numQuadPoints, t=time_proj.inverse(t)) 
+
+        if space_proj.contains(x):
+            return K0(boundaryFlux) - K1(g)
+    return u
+
+if __name__ == '__main__':
+    from plotHeatMap import plotSpace
+    time_proj = projection.interval(0,4)    
+    radius = 1.
+    space_proj = projection.circle(radius)
+
+    from numpy import arctan2,cos
+    def g(x,t):
+        return t**2  
+        #return radius*cos(arctan2(x[:,1],x[:,0])).reshape(-1,1)
+
+    def boundaryFlux(x,t):
+        if x.ndim==1:
+            x = x.reshape(1,x.size)
+        if t.ndim==1:
+            t = t.reshape(1,t.size)
+        #h = arctan2(x[:,1],x[:,0])
+        #return cos(h).reshape(-1,1)
+        alpha = jn_zeros(0,27)
+        return t + 4*sum((1.-exp(-alpha**2*t))/(alpha**4), axis=1).reshape(t.shape)   #cos(h)
+
+    #nt = 8
+    #from basis import Wavelet_basis, Const_basis
+    #base = Const_basis(14,14)
+    
+    #from L2proj import approximate
+    #bFlux = approximate(boundaryFlux,base,  space_proj, time_proj)
+    #print "found boundary flux"
+    from plotHeatMap import plotLinftyBFspace, plotLinftySpace, plotRadial
+    from exSol import boundaryFluxcos, exSolcos
+    #plotLinftyBFspace(bFlux, boundaryFluxcos, space_proj)
+    
+    t = 1
+    u = calcSolDirect(space_proj, time_proj,g,  boundaryFlux)
+    #print "calculated sol"
+    #print "Solution", u(array([0.,0.89]),t)
+    plotSpace(lambda x: u(x,t), 10)
+    plotRadial(u,exSolcos,1)
+    #plotLinftySpace(u, exSolcos, space_proj)
+    
+
