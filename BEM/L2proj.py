@@ -2,7 +2,7 @@ from numpy import floor, select, array, zeros, repeat
 from functools import partial
 from integrate import integrate
 from projection import interval, circle
-from basis import Constant1D
+from basis import *
 
 from numpy import zeros, matrix
 
@@ -79,7 +79,7 @@ def boundaryFlux(sol,basis, px, pt):
            th = pt.inverse(t).reshape(-1,1)
            return sum( float(sol[a+basis.nx*n]) * basis.baseX[a](xh) * basis.baseT[n](th) for a in range(basis.nx) for n in range(basis.nt) )
        return f
-   if isinstance(basis, Sparse_multiscale):
+   if isinstance(basis, Sparse_multiscale) or isinstance(basis, Linear1D):
       def fh(x,t):
          #if len(x.shape) == 1:
          #   x = x.reshape(-1,2)
@@ -108,8 +108,12 @@ def boundaryFlux(sol,basis, px, pt):
                xk = xk.reshape(-1,1)
                tk = tk.reshape(-1,1)
                alpha = basis.element_indexX(xk).reshape(1,-1)
+               #print alpha
                m     = basis.element_indexT(tk).reshape(1,-1)
+               #print m
                def f(i,j):
+                  if not alpha[0][i] < basis.baseX.n:
+                      print xk
                   coeff = sol[alpha[0][i]+ m[0][j]*basis.nx]
                   b1    = basis.baseX[alpha[0][i]](xk)
                   b2    = basis.baseT[m[0][j]](tk)
@@ -136,13 +140,14 @@ if __name__ == '__main__':
     from basis import Sparse_multiscale, Const_multiscale, Const_basis, Wavelet_basis
     #b = Sparse_multiscale(4)
     from numpy import zeros
-    ndof1 = zeros(8)
-    err1 = zeros(8)
-    ndof2 = zeros(8)
-    err2 = zeros(8)
-    for i in range(6):
-        b1 = Const_multiscale(4,i+1)
-        b2 = Const_basis(2**4,2**(i+1))
+    N = 4
+    ndof1 = zeros(N)
+    err1 = zeros(N)
+    ndof2 = zeros(N)
+    err2 = zeros(N)
+    for i in range(N):
+        b1 = Linear_basis(2**4,2**(i+2))
+        b2 = Const_basis(2**4,2**(i+2))
         print b1.nx, b2.nx
         c1 = approximate(g, b1, proj, interval(0,1))    
         c2 = approximate(g, b2, proj, interval(0,1))

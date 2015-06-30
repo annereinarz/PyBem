@@ -18,7 +18,7 @@ class base:
         return self.base[i]
 
    def element_index(self,x):
-      #print "Warning: Using default element_index implementation! (SLOW!)"
+      #TODO "Warning: Using default element_index implementation! (SLOW!)"
       indices = []
       for (i,f) in enumerate(self.base):
         if any(s.contains(x) for s in f.support):
@@ -83,6 +83,7 @@ def psi13(x):
    elif x[0] < 0.5:
        assert all(0 <= x[1:]) and all(x[1:] < 0.5)
        return 1.
+   
    elif  x[0] < 1:
        assert all(0.5 <= x[1:]) and all(x[1:] < 1)
        return -1.
@@ -164,6 +165,26 @@ class Constant1D(base):
    def element_index(self,t):
        return select([t<1.0], [array(t*self.n,int)], self.n-1)
 
+def theta(x):
+    return select([(x <= 1)*(x >= -1)],[1-abs(x)],0)
+
+
+class Linear1D(base):
+
+   def __init__(self, n):
+        self.n = n
+        self.base = []
+        b0 = lambda x: select([(x<0)+(1<x), x>1-1./self.n],[0, theta(self.n*(x-1))],theta(self.n*x))
+        b0.support = [interval(0,1./self.n)]+[interval(1.-1./self.n, 1.)]
+        self.base.append(b0)
+        for i in xrange(1,n):
+           b         = partial(lambda i,x: theta(self.n*x-i), i)
+           b.support = [ interval(float(i-1)/n, float(i+1)/n) ]
+           self.base.append(b)
+
+   def element_index(self,t):
+       #Debugging: assert t<=1. and t>=0
+       return select([t<1.0-1./self.n], [hstack([array(t*self.n,int),array(t*self.n+1,int)])], hstack([self.n-1,0]))
 
 class CombinedBase(base):
 
@@ -299,7 +320,14 @@ def Wavelet_basis(nt,jmax,jmin):
 
 def Const_basis(nt,nx):
    #pw constants in time and space
-   return TARDIS(Constant1D(nx), Constant1D(nt))
+   if d == 2:
+       return TARDIS(Constant1D(nx), Constant1D(nt))
+   if d == 3:
+       return TARDIS(TARDIS(Constant1D(nx),Constant1D(nx)), Constant1D(nt))
+
+def Linear_basis(nt,nx):
+   #pw constants in time and pw linears space
+   return TARDIS(Linear1D(nx), Constant1D(nt))
 
 from numpy import log2,linspace
 from numpy import matrix

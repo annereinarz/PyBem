@@ -95,34 +95,35 @@ if __name__ == '__main__':
     space_proj = projection.circle(radius)
 
     def g(x,t):
-        return t**2  
-        #return radius*cos(arctan2(x[:,1],x[:,0])).reshape(-1,1)
+        #return t**2  
+        return radius*cos(arctan2(x[:,1],x[:,0])).reshape(-1,1)
 
     def boundaryFlux(x,t):
         #if x.ndim==1:
         #    x = x.reshape(1,x.size)
         #if t.ndim==1:
         #    t = t.reshape(1,t.size)
-        #h = arctan2(x[:,1],x[:,0])
-        #return cos(h).reshape(-1,1)
-        alpha = jn_zeros(0,27)
-        return t + 4*sum((1.-exp(-alpha**2*t))/(alpha**4), axis=1).reshape(t.shape)   #cos(h)
+        h = arctan2(x[:,1],x[:,0])
+        return cos(h).reshape(-1,1)
+        #alpha = jn_zeros(0,27)
+        #return t + 4*sum((1.-exp(-alpha**2*t))/(alpha**4), axis=1).reshape(t.shape)   #cos(h)
 
-    nt = 10
-    base = Const_basis(20,20)
+    nt = 5
+    from basis import Linear_basis
+    base = Linear_basis(5,10)
     
     bFlux = approximateVec(boundaryFlux,base,  space_proj, time_proj)
     #bFlux2 = approximate(boundaryFlux,base,  space_proj, time_proj)
     #plotLinftyBFspace(bFlux, boundaryFluxcos, space_proj)
     
-    t = 2
+    #t = 2
     u = calcSolDirect(space_proj, time_proj,g, bFlux, base, base.nx,base.nt)
     #u = calcSolDirect2(space_proj, time_proj,g, bFlux2)
     #fig = plotSpace(lambda x: u2(x,t), 30)
     #fig.show()
-    fig = plotSpace(lambda x: u(x,t), 30)
-    fig.show()
-    plotRadial(u,exSolt2,endT)
+    #fig = plotSpace(lambda x: u(x,t), 30)
+    #fig.show()
+    plotRadial(u,exSolcos,endT)
     #plotLinftySpace(u, exSolcos, space_proj)
-    plotTime(u,exSolt2,time_proj.end)
+    #plotTime(u,exSolt2,time_proj.end)
 

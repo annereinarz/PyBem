@@ -38,7 +38,7 @@ from basis import SIndices, findIndices
 if __name__ == '__main__':
     from cProfile import run
     from time import clock
-    N = 7
+    N = 10
 
     cnt  = 0
     elap = zeros(N)
@@ -61,9 +61,9 @@ if __name__ == '__main__':
     cnt = 0
     for i in range(N):    
         #for the time comparison: direct impl. of sparse grids
-        start = clock()
-        sols,Bs = sparseN(i, sigma,space_proj,time_proj,g)
-        elap2[i] = (clock()-start)  
+        #start = clock()
+        #sols,Bs = sparseN(i, sigma,space_proj,time_proj,g)
+        #elap2[i] = (clock()-start)  
         
         #Combination technique 
         start = clock()
@@ -71,22 +71,22 @@ if __name__ == '__main__':
         elap[i] = (clock()-start)
 
         #convergence values)
-        norm[cnt] = dot(Bsparse,solSparse)**0.5
-        norm2[cnt] = dot(Bs,sols)**0.5
+        norm[cnt] = dot(Bsparse,solSparse)
+        #norm2[cnt] = dot(Bs,sols)
         print "norm is: ", norm[cnt], norm2[cnt]
         ndof[cnt] = len(solSparse)
 
         print cnt
         cnt += 1
     print "norm=",norm
-    print "norm2 = ",norm2
+    #print "norm2 = ",norm2
     print "elap =", elap
-    print "elap2 = ",elap2
+    #print "elap2 = ",elap2
     #print "elap3 = ",elap3
     print "ndof+=",ndof
     #print "ndofc=",ndofc
-    plotTimeConv([norm,norm2],[elap,elap2],[ndof,ndof],['sparse grid combination technique','direct implementation of sparse grids', 'full tensor product discretisation'])
-    plotConv([norm,norm2],[ndof,ndof],['sparse grid combination technique','direct implementation of sparse grids', 'full tensor product discretisation'])
+    #plotTimeConv([norm,norm2],[elap,elap2],[ndof,ndof],['sparse grid combination technique','direct implementation of sparse grids', 'full tensor product discretisation'])
+    plotConv([norm],[ndof],['sparse grid combination technique'])
 
 
 

@@ -58,7 +58,7 @@ def dot_prod(x,y):
     return fromiter(map(dot,x,y), dtype=x.dtype).reshape(x.shape[0], 1)
 
 def BilinearformA(flag, basis, alpha,beta, space_proj,time_proj,**kwargs):
-    numx = 12
+    numx = 8
     endT = float(time_proj.length)
     basis1 = basis.baseX[alpha]
     intervals1 = basis.baseX[alpha].support

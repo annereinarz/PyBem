@@ -15,7 +15,7 @@ def plotSpace(u, n):
    f = figure()
    i = f.gca().imshow(A, interpolation='nearest')#,vmin=3,vmax=5)
    f.colorbar(i)
-   #f.show()
+   f.show()
    return f
 
 def plotLinftyBF(bflux, exSol, time_proj):

@@ -200,6 +200,23 @@ class outside_ellipse (domain):
         return "out-ellipse({},{})".format(self.a, self.b)
 
 
+class torus (domain):
+    "A torus in 3d of inner radius R and outer radius r."
+    dim = 2
+
+    def __init__(self, r, R):
+        self.r = r
+        self.R = R
+
+    def __call__(self, theta):
+        z1 = pi*(2*theta-1)
+        z2 = pi*(2*phi-1)
+        assert z1.shape[1] == 1 and z2.shape[1] == 1
+        return [(self.R+self.r*cos(z1))*cos(z2), (self.R+self.r*cos(z1))*sin(z2),self.r*sin(z1)]
+
+    def __repr__(self):
+        return "torus{})".format(self.R, self.r)
+
 class starshaped (domain):
     "Abstract base class for star-shaped domains."
 

@@ -29,19 +29,19 @@ def L2norm(f,N):
 #Choose the domain
 endT = 4.
 time_proj = interval(0,endT)
-radius = 1.
-space_proj = circle(radius)
-#a = 1
-#b = 1
-#space_proj = ellipse(a,b)
+#radius = 1.
+#space_proj = circle(radius)
+a = 1
+b = .3
+space_proj = ellipse(a,b)
 #space_proj = outside_ellipse(a,b)
 #space_proj = wibblywobbly()
 
 #Chose g(x,t)
 def g(x,t):
     h = arctan2(x[:,1],x[:,0])
-    return cos(h).reshape(-1,1)
-g.name = "cos"
+    return t**2*cos(4*h).reshape(-1,1)
+g.name = "cos-t2"
 
 #g = lambda x,t: t**2
 #g.name = "t-squared"
@@ -52,7 +52,7 @@ g.name = "cos"
 #def g(x,t):
 #    return t**4*exp(-2*t)
 
-N = 15
+N = 8
 
 cnt  = 0
 #errors  = []
@@ -66,7 +66,8 @@ sigma = 6./5.
 for i in range(N):
     from numpy import floor
     Nx = 2**(i+2)
-    Nt = 1#2**(int(floor((i+2)*sigma)))
+    Nt = 2**(int(floor((i+2)*sigma)))
+    print i+2, int(floor((i+2)*sigma))
     basis = Const_basis(Nt,Nx)
 
     from cProfile import run
@@ -112,14 +113,14 @@ print "times", times
 print "nshape", ndof
 print "Norm", norm
 
-plotConv([norm],[array(ndof)],['Gamma = circle, f = t^2'])
+#plotConv([norm],[array(ndof)],['Gamma = circle, f = t^2'])
 #bflux = boundaryFlux(sol, basis, space_proj, time_proj)
-#u = calcSolIndirect(space_proj, time_proj, bflux)
-#print "Solution", u(array([0.,0.89]),t
+#u = calcSolIndirect(space_proj, time_proj, sol, basis, basis.nx, basis.nt)
+##print "Solution", u(array([0.,0.89]),.4)#
 #t = 1
-#plotSpace(lambda x: u(x,t), 30)
+#plotSpace(lambda x: u(x,t), 60)
 #t = 2
-#plotSpace(lambda x: u(x,t), 30)
+#plotSpace(lambda x: u(x,t), 40)
 #t = 3
 #plotSpace(lambda x: u(x,t), 30)
 #t = 4
