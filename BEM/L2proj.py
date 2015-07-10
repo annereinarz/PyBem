@@ -25,18 +25,18 @@ def BilinearformM(bi,bj, px,pt):
                   if(intersection and intersection.length and intersectionT and intersectionT.length):
                      bi = lambda x,t: bXalpha(x) * bTm(t)
                      bj = lambda x,t: bXbeta(x)  * bTn(t)
-                     m += integrate(lambda x,t: bi(x,t)*bj(x,t) *px.derivative(x)*pt.derivative(t), intersection,intersectionT, n = 3)
+                     m += integrate(lambda x,t: bi(x,t)*bj(x,t) *px.derivative(x)*pt.derivative(t), intersection,intersectionT, n = 13)
     return m
 
 def assembleMass(base, px, pt):
     if isinstance(base, Sparse_multiscale):
-      N = base.nx
-      A = matrix(zeros( (N,N) ))
-      print "A", N
-      for i in range(N):
-         for j in range(N):
-            A[i,j] = BilinearformM( (base.baseX[i],base.baseT[i]),(base.baseX[j], base.baseT[j]), px,pt)
-      return A
+        N = base.nx
+        A = matrix(zeros( (N,N) ))
+        print "A", N
+        for i in range(N):
+            for j in range(N):
+                 A[i,j] = BilinearformM( (base.baseX[i],base.baseT[i]),(base.baseX[j], base.baseT[j]), px,pt)
+        return A
     Nx   = base.nx;
     Nt   = base.nt
     A    = matrix(zeros((Nt*Nx,Nt*Nx)))
@@ -79,7 +79,7 @@ def boundaryFlux(sol,basis, px, pt):
            th = pt.inverse(t).reshape(-1,1)
            return sum( float(sol[a+basis.nx*n]) * basis.baseX[a](xh) * basis.baseT[n](th) for a in range(basis.nx) for n in range(basis.nt) )
        return f
-   if isinstance(basis, Sparse_multiscale) or isinstance(basis, Linear1D):
+   if isinstance(basis, Sparse_multiscale):
       def fh(x,t):
          #if len(x.shape) == 1:
          #   x = x.reshape(-1,2)
@@ -125,22 +125,19 @@ def boundaryFlux(sol,basis, px, pt):
 
 
 
+from numpy import cos, linspace, zeros, repeat, arctan2, vstack, array,pi
+from matplotlib.pyplot import figure
+from mpl_toolkits.mplot3d import Axes3D
+from basis import Sparse_multiscale, Const_multiscale, Const_basis, Wavelet_basis
+from projection import circle, interval
 if __name__ == '__main__':
-    from numpy import cos, linspace, zeros, repeat, arctan2, vstack, array
-    from matplotlib.pyplot import figure
-    from mpl_toolkits.mplot3d import Axes3D
-
-    from projection import circle
 
     proj = circle(1.0)
     def g(x,t):
         h = arctan2(x[:,1],x[:,0])
-        return (cos(h).reshape(-1,1))
-
-    from basis import Sparse_multiscale, Const_multiscale, Const_basis, Wavelet_basis
-    #b = Sparse_multiscale(4)
-    from numpy import zeros
-    N = 4
+        return t**2*cos(4*h).reshape(-1,1)
+    
+    N = 6
     ndof1 = zeros(N)
     err1 = zeros(N)
     ndof2 = zeros(N)
@@ -148,8 +145,8 @@ if __name__ == '__main__':
     for i in range(N):
         b1 = Linear_basis(2**4,2**(i+2))
         b2 = Const_basis(2**4,2**(i+2))
-        print b1.nx, b2.nx
-        c1 = approximate(g, b1, proj, interval(0,1))    
+        #print b1.nx, b2.nx
+        c1 = approximate(g, b1, proj, interval(0,1))
         c2 = approximate(g, b2, proj, interval(0,1))
         t = 0.5
         X = proj(linspace(0,1,123).reshape(-1,1))

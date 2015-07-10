@@ -179,7 +179,7 @@ class Linear1D(base):
         self.base.append(b0)
         for i in xrange(1,n):
            b         = partial(lambda i,x: theta(self.n*x-i), i)
-           b.support = [ interval(float(i-1)/n, float(i+1)/n) ]
+           b.support =  [interval(float(i-1)/n, float(i+1)/n)] 
            self.base.append(b)
 
    def element_index(self,t):

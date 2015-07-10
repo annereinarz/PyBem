@@ -1,5 +1,5 @@
 from projection import *
-from basis import Const_basis
+from basis import Const_basis, Linear_basis
 from assembleMatrix import assembleSingleLayer
 from assembleVector import assembleVector
 from calcSol import calcSolIndirect, fundamentalSol
@@ -32,7 +32,7 @@ time_proj = interval(0,endT)
 #radius = 1.
 #space_proj = circle(radius)
 a = 1
-b = .3
+b = 1
 space_proj = ellipse(a,b)
 #space_proj = outside_ellipse(a,b)
 #space_proj = wibblywobbly()
@@ -52,7 +52,7 @@ g.name = "cos-t2"
 #def g(x,t):
 #    return t**4*exp(-2*t)
 
-N = 8
+N = 6
 
 cnt  = 0
 #errors  = []
@@ -68,7 +68,7 @@ for i in range(N):
     Nx = 2**(i+2)
     Nt = 2**(int(floor((i+2)*sigma)))
     print i+2, int(floor((i+2)*sigma))
-    basis = Const_basis(Nt,Nx)
+    basis = Linear_basis(Nt,Nx)
 
     from cProfile import run
     from time import clock
@@ -113,7 +113,7 @@ print "times", times
 print "nshape", ndof
 print "Norm", norm
 
-#plotConv([norm],[array(ndof)],['Gamma = circle, f = t^2'])
+plotConv([norm],[array(ndof)],['convergence'])
 #bflux = boundaryFlux(sol, basis, space_proj, time_proj)
 #u = calcSolIndirect(space_proj, time_proj, sol, basis, basis.nx, basis.nt)
 ##print "Solution", u(array([0.,0.89]),.4)#

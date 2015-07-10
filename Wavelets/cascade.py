@@ -28,7 +28,7 @@ def approxBioHat(j_max):
 
 if __name__ == '__main__':
     from numpy import arange, zeros
-    n = 8
+    n = 7
     phi = approxBioHat(n)
     h = 2**(-n)
     j = arange(-2,2+h,h)
@@ -36,6 +36,8 @@ if __name__ == '__main__':
     for i in range(j.shape[0]):
         phiarr[i] = phi[j[i]]
     from matplotlib.pyplot import figure
+    for i in range(j.shape[0]):
+        print (j[i],5.8*20*phiarr[i])
     f = figure()
-    f.gca().plot(j,phiarr,'b-')
+    f.gca().plot(j,5.8*20*phiarr,'b-')
     f.show()
