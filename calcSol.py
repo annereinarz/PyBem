@@ -19,3 +19,41 @@ def nfundamentalSol(n,x,t):
         return fundamentalSol(x,t)/(2*t)*dot_prod(n,x)
 
 
+from integrate import integrate
+
+#calculates the solution using the direct formulation,
+#given a boundary flux boundaryFlux and a right hand side g
+#and the projections in space and time space_proj, time_proj
+def calcSolDirect(space_proj, time_proj, g, boundaryFlux):
+    def u(x,t):
+        def K0(f):
+            def help(y,s):
+                 return f(y,s)*fundamentalSol(x-y,t-s)
+            return integrate(help, space_proj, time_proj, n = numQuadPoints, t=time_proj.inverse(t))
+
+        def K1(f):
+            return integrate(lambda y,s: f(y,s)*nfundamentalSol(space_proj.normal(y),x-y,t-s), space_proj,time_proj, n=numQuadPoints, t=time_proj.inverse(t)) 
+
+        if space_proj.contains(x):
+            return K0(boundaryFlux) - K1(g)
+    return u
+
+#Test the calculation of the Direct Method using the exact boundary Flux
+if __name__ == "__main__":
+	from numpy import arctan2, cos, array
+	def boundaryFlux(x,t):
+    		h = arctan2(x[:,1],x[:,0])
+    		return cos(h).reshape(-1,1)
+	def g(x,t):
+    		h = arctan2(x[:,1],x[:,0])
+    		return cos(h).reshape(-1,1)
+	from projection import interval, circle
+	space_proj = circle(1.)
+	time_proj = interval(0.,1.)
+
+	u  = calcSolDirect(space_proj, time_proj, g, boundaryFlux)
+	from plotHeatMap import plotSpace
+	plotSpace(lambda x: u(x,1.), 20)
+
+
+
