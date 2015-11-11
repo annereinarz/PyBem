@@ -16,7 +16,7 @@ def integrate(f, *projs, **kwargs):
                )
     dims = tuple(p.dim for p in projs)
     def integrate_on_0_1(f, (Xs,W)):
-        return sum(f(*Xs)*W)
+        return sum(f(*Xs).reshape(-1,1)*W)
     if 't' in kwargs:
         if 'x' in kwargs:
             return integrate_on_0_1(g, SingXT((nsing,dims,kwargs['x'],kwargs['t'])))
