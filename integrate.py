@@ -23,7 +23,6 @@ def integrate(f, *projs, **kwargs):
         return integrate_on_0_1(g, SingT((nsing, dims, kwargs['t'])))
     return integrate_on_0_1(g, Reg((n, dims)))
 
-
 def SingXT((n,dims,x,t)):
     return createQuadRule(dims, sing_gauleg(n,t=x, flag = 1), sing_gauleg(n,t=t, flag = 2))
 

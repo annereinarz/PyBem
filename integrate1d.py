@@ -31,8 +31,10 @@ def sing_gauleg(n, **kwargs):
     return x,w
 
 from numpy import empty, sqrt
+from memoize import memoize
 
 #Returns composite Gauss-Legendre points on [0,1]
+@memoize
 def cgauleg(n):
     sigma = (sqrt(2)-1)**2    # parameter of geometric subdivision
     x = empty([(n*(n+3))/2-1])
@@ -61,7 +63,8 @@ def cgauleg(n):
    
 from numpy import cos, pi
 
-#Gauss-legendre points and weights in the interval [0,1].  
+#Gauss-legendre points and weights in the interval [0,1]. 
+@memoize 
 def gauleg(n):
     x = empty([n]);    w = empty([n])
     m = int((n+1)/2)
