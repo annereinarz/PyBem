@@ -6,6 +6,21 @@ from numpy import prod, sum
 #and where the singularity is located, if empty it is assumed f is non-singular
 def integrate(f, *projs, **kwargs):
     n = kwargs['n']   #number of quadrature points in regular directions
+
+    def integrate_on_0_1(f, (Xs,W)):
+        return sum(f(*Xs).reshape(-1,1)*W)
+
+    if 'flag' in kwargs:
+	flag = kwargs['flag']
+        if flag == 'SingNone':
+           return integrate_on_0_1(f, SingNone(n))
+        if flag == 'SingDiag':
+           return integrate_on_0_1(f, SingDiag((n,n)))
+        elif flag == 'SingLeftupper':
+            return integrate_on_0_1(f, SingLeftupper((n,n)))
+        else:    # Last case is a2 == b1:
+            return integrate_on_0_1(f, SingRightbottom((n,n)))	
+
     if 'nsing' in kwargs:
         nsing = kwargs['nsing']
     else:
@@ -14,9 +29,7 @@ def integrate(f, *projs, **kwargs):
         return ( f (*(p(th) for p,th in zip(projs,ths)))
                * prod([p.derivative(th) for p,th in zip(projs,ths)], axis=0)
                )
-    dims = tuple(p.dim for p in projs)
-    def integrate_on_0_1(f, (Xs,W)):
-        return sum(f(*Xs).reshape(-1,1)*W)
+    dims = tuple(p.dim for p in projs) 
     if 't' in kwargs:
         if 'x' in kwargs:
             return integrate_on_0_1(g, SingXT((nsing,dims,kwargs['x'],kwargs['t'])))
@@ -31,6 +44,50 @@ def SingT((n,dims,t)):
 
 def Reg((n,dims)):
     return createQuadRule(dims, gauleg(n), gauleg(n))
+
+from memoize import memoize
+from numpy import hstack
+
+@memoize
+def SingNone(n):
+    assert n>0, 'need more than zero quadrature points'
+    X,W = tensor(gauleg(n), gauleg(n+1))
+    Xs = (X[:,0].reshape(-1,1), X[:,1].reshape(-1,1))
+    return (Xs,W.reshape(-1,1))
+
+@memoize
+def SingDiag((n_gl, n_cgl)):
+    assert n_gl>0 and n_cgl>0, 'need more than zero quadrature points'
+    X,W = tensor(gauleg(n_gl), sing_gauleg(n_cgl))
+    W = W * (1-X[:,1])
+    X[:,0] = X[:,0]*(1-X[:,1])
+    X[:,1] = X[:,1] + X[:,0]
+    X0 = hstack([ X[:,0], X[:,1] ])
+    X1 = hstack([ X[:,1], X[:,0] ])
+    Wn = hstack([ W,      W      ])
+    return ((X0.reshape(-1,1),X1.reshape(-1,1)), Wn.reshape(-1,1))
+
+@memoize
+def SingRightbottom((n_gl, n_cgl)):
+    assert n_gl>0 and n_cgl>0, 'need more than zero quadrature points'
+    X,W = tensor(gauleg(n_gl), sing_gauleg(n_cgl))
+    W = W * X[:,1]
+    X[:,0] = X[:,0]*X[:,1]
+    X0 = hstack([ 1-X[:,0], 1-X[:,1] ])
+    X1 = hstack([   X[:,1],   X[:,0] ])
+    Wn = hstack([ W,      W      ])
+    return ((X0.reshape(-1,1),X1.reshape(-1,1)), Wn.reshape(-1,1))
+
+@memoize
+def SingLeftupper((n_gl, n_cgl)):
+    assert n_gl>0 and n_cgl>0, 'need more than zero quadrature points'
+    X,W = tensor(gauleg(n_gl), sing_gauleg(n_cgl))
+    W = W * X[:,1]
+    X[:,0] = X[:,0]*X[:,1]
+    X0 = hstack([   X[:,0],   X[:,1] ])
+    X1 = hstack([ 1-X[:,1], 1-X[:,0] ])
+    Wn = hstack([ W,      W      ])
+    return ((X0.reshape(-1,1),X1.reshape(-1,1)), Wn.reshape(-1,1))
 
 from numpy import cumsum, hsplit
 
