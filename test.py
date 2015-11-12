@@ -12,7 +12,7 @@ from numpy import arctan2, cos
 
 def g(x,t):
     h = arctan2(x[:,1],x[:,0])
-    return t**2*cos(2*h).reshape(-1,1)
+    return t**2*cos(h).reshape(-1,1)
 
 #Chose number of degrees of freedom in time and space
 N = 3 
@@ -54,6 +54,9 @@ for sigma in [ 6./5.]:
 	print "nshape", ndof
         print "norm", norm
 
-
+from calcSol import calcSolIndirect
+u = calcSolIndirect(space_proj, time_proj, sol, basis)
+from plotHeatMap import plotSpace
+plotSpace(lambda x: u(x,1), 20)
 
 

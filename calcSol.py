@@ -54,6 +54,32 @@ def calcSolDirect(space_proj, time_proj, g, boundaryFlux, **kwargs):
             return K0(boundaryFlux) - K1(g)
     return u
 
+
+#Calculates the solution using the indirect formulation
+def calcSolIndirect(space_proj, time_proj, sol, base):
+    nx = base.nx
+    nt = base.nt
+    def u(x,t):
+        def K0(xsol):
+            Itotal = 0
+            for alpha in range(nx):
+                for m in range(nt):
+                   a1 = base.baseX[alpha].support[0](0); a2 = base.baseX[alpha].support[0](1)
+                   b1 = base.baseT[m].support[0](0);     b2 = base.baseT[m].support[0](1)
+                   def help(y,s):
+                       return time_proj.derivative(s)*space_proj.derivative(y)*xsol[m*nx+alpha]*fundamentalSol(x-space_proj(y),t-time_proj(s))
+
+                   if t <= b2 and t> b1:
+                        Itotal += integrate(help, base.baseX[alpha].support[0], base.baseT[m].support[0], n = 50, t=base.baseT[m].support[0].inverse(t),nsing=18)
+                   else:
+                        Itotal += integrate(help, base.baseX[alpha].support[0], base.baseT[m].support[0], n = 50)
+            return Itotal      
+         
+        if space_proj.contains(x):
+            return K0(sol)
+    return u
+
+
 #Test the calculation of the Direct Method using the exact boundary Flux
 if __name__ == "__main__":
 	from numpy import arctan2, cos, array
