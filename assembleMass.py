@@ -41,13 +41,3 @@ def assembleMass(base, px, pt):
                     A[m*Nx + alpha, n*Nx + beta] = BilinearformM(bi,bj,px,pt)
     return A
 
-
-if __name__ == "__main__":
-	from projection import circle, interval
-	px = circle(1.)
-	pt = interval(0,1)
-	from basis import Const_basis
-	b = Const_basis(3,3)
-	A = assembleMass(b, px,pt)
-	print A
-	

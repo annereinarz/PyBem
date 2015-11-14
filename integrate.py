@@ -91,7 +91,7 @@ def SingLeftupper((n_gl, n_cgl)):
 
 from numpy import cumsum, hsplit
 
-#The tenor product of several one-dimensional quadrature rules
+#The tensor product of several one-dimensional quadrature rules
 def createQuadRule(dims, r1, r2):
     d = sum(dims)
     X,W = r1
@@ -130,14 +130,3 @@ def plot(x,w):
     else:
         raise RuntimeError("Can't plot quadrature points with shape {}.".format(x.shape))
     f.show()
-
-
-#A test for the higher-dimensional quadrature routines,
-#only used if this file is called as main
-if __name__ == "__main__":
-   from numpy import cos, sin
-   g = lambda x,t: t**2*cos(x)
-   exsol = sin(1)/3.
-   (Xs,W) =  Reg((10,[1,1]))
-   print "error", exsol - sum(g(*Xs)*W)
-

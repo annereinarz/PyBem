@@ -92,22 +92,3 @@ def gauleg(n):
     w = w/2.
     return x, w
 
-#Some tests for the 1d quadrature routines,
-#only used if this file is called as main
-if __name__ == "__main__":
-	from numpy import abs, sin
-	f1 = lambda x: abs(x-0.5)**(-0.5)  # function with a singularity at 0.5
-	ex1 = 2*sqrt(2)
-        f2 = lambda x: x**(-0.5)        # function with a singularity at 0
-	ex2 = 2
-	f3 = lambda x: sin(x)*cos(x)    #function without singularity 
-	ex3 = sin(1)**2/2.
-	#TEST 1: singularity at 0.5
-	(x,w) = sing_gauleg(18, t=0.5, flag=1)	
-	print "error TEST 1", ex1 - sum(f1(x)*w)
-	#TEST 2: singularity at 0
-	(x,w) = sing_gauleg(18)	
-	print "error TEST 2", ex2 - sum(f2(x)*w)	
-	#TEST 3: no singularity
-	(x,w) = gauleg(4)	
-	print "error TEST 3", ex3 - sum(f3(x)*w)
