@@ -3,6 +3,14 @@ PyBem
 
 BEM code for solving the heat equation.
 
+More precisely, we solve the Dirichlet problem in a smooth domain Omega with boundary
+Gamma and a time interval I = (0,4)
+Find  u: Omega x I --> R satisfying:
+  (partial_t-Delta)u = 0,          in Omega x I
+  u = 0,                           at Omega x {t=0}
+  u|_{Gamma x I} = g,              in Gamma x I,
+
+
 Prerequisites
 -------------
 
